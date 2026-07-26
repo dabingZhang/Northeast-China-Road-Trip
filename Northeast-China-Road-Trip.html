@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>东北边境环线 · 飞+租车方案</title>
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --card: #16213e;
+    --accent: #e94560;
+    --gold: #f0a500;
+    --text: #eaeaea;
+    --muted: #a0a0b0;
+    --border: #2a2a4a;
+    --green: #4ecca3;
+    --blue: #4ea8de;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    line-height: 1.7;
+    padding: 0;
+  }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 40%, #16213e 100%);
+    padding: 60px 20px 50px;
+    text-align: center;
+    border-bottom: 2px solid var(--accent);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at 30% 50%, rgba(233,69,96,0.08) 0%, transparent 70%),
+                radial-gradient(ellipse at 70% 30%, rgba(78,168,222,0.06) 0%, transparent 70%);
+  }
+  .hero h1 {
+    font-size: 2.4em;
+    font-weight: 800;
+    letter-spacing: 2px;
+    position: relative;
+    background: linear-gradient(135deg, var(--accent), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero .subtitle {
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 1.1em;
+    position: relative;
+  }
+  .hero .badge {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+    letter-spacing: 1px;
+    position: relative;
+  }
+  .badge-fly { background: rgba(78,168,222,0.15); color: var(--blue); border: 1px solid rgba(78,168,222,0.3); }
+  .badge-best { background: rgba(78,204,163,0.12); color: var(--green); border: 1px solid rgba(78,204,163,0.3); margin-left: 8px; }
+
+  /* Container */
+  .container { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+
+  /* Route Overview */
+  .route-overview {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 32px;
+    margin: 40px 0 30px;
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+  .route-overview h2 { color: var(--accent); margin-bottom: 20px; font-size: 1.3em; }
+  .route-line {
+    font-family: "SF Mono", "Fira Code", "Courier New", monospace;
+    font-size: 0.82em;
+    line-height: 2;
+    color: var(--muted);
+    background: rgba(0,0,0,0.2);
+    border-radius: 10px;
+    padding: 20px;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .route-line .hl { color: var(--accent); font-weight: bold; }
+  .route-line .fly { color: var(--blue); }
+  .route-line .ferry { color: var(--gold); }
+  .route-line .g331 { color: var(--green); }
+
+  /* Stats */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin: 30px 0;
+  }
+  .stat-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 20px 16px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .stat-card .val {
+    font-size: 1.8em;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .stat-card .lbl { color: var(--muted); font-size: 0.8em; margin-top: 6px; }
+
+  /* Day cards */
+  .section-title {
+    font-size: 1.3em;
+    margin: 40px 0 20px;
+    color: var(--accent);
+    padding-left: 16px;
+    border-left: 4px solid var(--accent);
+  }
+  .day-grid {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 30px;
+  }
+  .day-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid var(--border);
+    transition: border-color 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .day-card:hover { border-color: var(--accent); }
+  .day-card .day-num {
+    position: absolute;
+    top: 16px; right: 20px;
+    font-size: 2.4em;
+    font-weight: 800;
+    color: rgba(233,69,96,0.08);
+    pointer-events: none;
+  }
+  .day-card .day-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .day-card .day-date {
+    font-weight: 700;
+    font-size: 1.05em;
+    color: var(--text);
+  }
+  .day-card .day-title {
+    color: var(--gold);
+    font-weight: 600;
+  }
+  .day-card .day-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .day-card .day-meta span {
+    font-size: 0.85em;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .day-card .day-meta .drive { color: var(--blue); }
+  .day-card .day-meta .rest { color: var(--green); }
+  .day-card ul {
+    list-style: none;
+    padding: 0;
+  }
+  .day-card li {
+    font-size: 0.92em;
+    color: var(--muted);
+    padding: 3px 0;
+    padding-left: 16px;
+    position: relative;
+  }
+  .day-card li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: bold;
+  }
+  .day-card .highlight {
+    background: rgba(233,69,96,0.08);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-top: 10px;
+    border-left: 3px solid var(--accent);
+    font-size: 0.88em;
+    color: var(--accent);
+  }
+  .day-card.rest-day {
+    border-color: rgba(78,204,163,0.3);
+  }
+  .day-card.rest-day .day-num { color: rgba(78,204,163,0.06); }
+
+  /* Tables */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 0.9em;
+  }
+  .data-table th {
+    text-align: left;
+    padding: 10px 14px;
+    color: var(--accent);
+    border-bottom: 2px solid var(--border);
+    font-weight: 600;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .data-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* Cost section */
+  .cost-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .cost-item {
+    background: rgba(0,0,0,0.15);
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .cost-item .cost-lbl { color: var(--muted); font-size: 0.9em; }
+  .cost-item .cost-val { font-weight: 700; color: var(--gold); font-size: 1.05em; }
+  .cost-total {
+    background: rgba(233,69,96,0.08);
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    border: 1px solid rgba(233,69,96,0.2);
+  }
+  .cost-total .cost-lbl { font-weight: 700; font-size: 1em; }
+  .cost-total .cost-val { font-weight: 800; font-size: 1.3em; color: var(--accent); }
+
+  /* Intensity chart */
+  .intensity-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 6px 0;
+    font-size: 0.85em;
+  }
+  .intensity-bar .bar-label {
+    width: 50px;
+    text-align: right;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .intensity-bar .bar-fill {
+    height: 22px;
+    border-radius: 4px;
+    transition: width 0.3s;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    font-size: 0.75em;
+    color: #fff;
+    font-weight: 600;
+    min-width: 50px;
+  }
+  .bar-highway { background: var(--blue); }
+  .bar-g331 { background: var(--green); }
+  .bar-rest { background: rgba(255,255,255,0.08); border: 1px dashed var(--border); min-width: 30px; }
+
+  /* Tips */
+  .tips { background: var(--card); border-radius: 12px; padding: 24px 28px; margin: 30px 0; border: 1px solid var(--border); }
+  .tips h3 { color: var(--gold); margin-bottom: 14px; }
+  .tips ol { padding-left: 20px; }
+  .tips li { color: var(--muted); font-size: 0.9em; padding: 4px 0; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.8em;
+    padding: 40px 0 30px;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 0.75em;
+    font-weight: 600;
+  }
+  .tag-flight { background: rgba(78,168,222,0.15); color: var(--blue); }
+  .tag-ferry { background: rgba(240,165,0,0.12); color: var(--gold); }
+  .tag-drive { background: rgba(233,69,96,0.1); color: var(--accent); }
+  .tag-rest { background: rgba(78,204,163,0.1); color: var(--green); }
+  .tag-g331 { background: rgba(78,204,163,0.08); color: var(--green); }
+
+  /* Compare table */
+  .compare-card {
+    background: var(--card);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .compare-card .winner {
+    background: rgba(78,204,163,0.08);
+  }
+
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 1.6em; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .cost-grid { grid-template-columns: 1fr; }
+    .route-line { font-size: 0.7em; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- HERO -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="hero">
+  <h1>东北边境环线自驾游</h1>
+  <div class="subtitle">飞 + 租车方案 · 大连取 / 沈阳还</div>
+  <div>
+    <span class="badge badge-fly">✈ 南京→烟台</span>
+    <span class="badge badge-fly">⛴ 轮渡大连</span>
+    <span class="badge badge-best">🥇 体验最佳</span>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 路线总览 -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="route-overview">
+  <h2>🗺 路线总览</h2>
+  <div class="route-line">
+    <span class="fly">南京 ✈</span> → <span class="fly">烟台</span> → <span class="ferry">⛴ 渤海钻珠</span> → <span class="fly">大连（取车）</span><br>
+    <span class="hl">大连</span> ──<span style="color:#4ea8de">G228</span>──→ <span class="hl">丹东</span> ═══<span class="g331">G331 鸭绿江</span>═══→ <span class="hl">集安</span> → <span class="hl">临江</span> → <span class="hl">长白县</span> → <span class="hl">长白山</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+    <span class="fly">南京 ✈</span> ← <span class="hl">沈阳（还车）</span> ← <span class="hl">长春</span> ← <span class="hl">吉林市</span> ← <span class="hl">延吉</span> ← <span class="g331">珲春防川</span> ←──┘
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 关键数据 -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-title">📊 关键数据</div>
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="val">2,900</div>
+    <div class="lbl">总驾车里程 (km)</div>
+  </div>
+  <div class="stat-card">
+    <div class="val">46</div>
+    <div class="lbl">总驾驶时间 (h)</div>
+  </div>
+  <div class="stat-card">
+    <div class="val">222</div>
+    <div class="lbl">日均里程 (km)</div>
+  </div>
+  <div class="stat-card">
+    <div class="val">3.5</div>
+    <div class="lbl">日均驾驶 (h)</div>
+  </div>
+  <div class="stat-card">
+    <div class="val">319</div>
+    <div class="lbl">最长单日 (km)</div>
+  </div>
+  <div class="stat-card">
+    <div class="val">13</div>
+    <div class="lbl">天数 (9.24 → 10.7)</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 每日驾驶强度 -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-title">📈 每日驾驶强度</div>
+<div style="background:var(--card); border-radius:12px; padding:24px; border:1px solid var(--border);">
+  <div class="intensity-bar"><span class="bar-label">9.24</span><span class="bar-fill bar-rest" style="width:8%">✈</span><span style="color:var(--muted);font-size:0.8em;">✈SC7638 15:55→17:25 → ⛴22:40→05:20</span></div>
+  <div class="intensity-bar"><span class="bar-label">9.25</span><span class="bar-fill bar-highway" style="width:50%">304</span><span style="color:var(--muted);font-size:0.8em;">大连→丹东 G228</span></div>
+  <div class="intensity-bar"><span class="bar-label">9.26</span><span class="bar-fill bar-g331" style="width:46%">280</span><span style="color:var(--muted);font-size:0.8em;">丹东→绿江村 G331</span></div>
+  <div class="intensity-bar"><span class="bar-label">9.27</span><span class="bar-fill bar-g331" style="width:44%">270</span><span style="color:var(--muted);font-size:0.8em;">→集安 G331</span></div>
+  <div class="intensity-bar"><span class="bar-label">9.28</span><span class="bar-fill bar-g331" style="width:41%">250</span><span style="color:var(--muted);font-size:0.8em;">集安→临江 G331</span></div>
+  <div class="intensity-bar"><span class="bar-label">9.29</span><span class="bar-fill bar-g331" style="width:49%">300</span><span style="color:var(--muted);font-size:0.8em;">临江→长白县 G331</span></div>
+  <div class="intensity-bar"><span class="bar-label">9.30</span><span class="bar-fill bar-g331" style="width:41%">250</span><span style="color:var(--muted);font-size:0.8em;">长白县→二道白河</span></div>
+  <div class="intensity-bar"><span class="bar-label">10.1</span><span class="bar-fill bar-rest" style="width:5%"></span><span style="color:var(--green);font-size:0.8em;">🏔 长白山全天！</span></div>
+  <div class="intensity-bar"><span class="bar-label">10.2</span><span class="bar-fill bar-g331" style="width:46%">280</span><span style="color:var(--muted);font-size:0.8em;">二道白河→延吉</span></div>
+  <div class="intensity-bar"><span class="bar-label">10.3</span><span class="bar-fill bar-g331" style="width:38%">230</span><span style="color:var(--muted);font-size:0.8em;">延吉⇌珲春防川</span></div>
+  <div class="intensity-bar"><span class="bar-label">10.4</span><span class="bar-fill bar-highway" style="width:52%">319</span><span style="color:var(--muted);font-size:0.8em;">延吉→吉林市</span></div>
+  <div class="intensity-bar"><span class="bar-label">10.5</span><span class="bar-fill bar-highway" style="width:19%">112</span><span style="color:var(--muted);font-size:0.8em;">吉林→长春</span></div>
+  <div class="intensity-bar"><span class="bar-label">10.6</span><span class="bar-fill bar-highway" style="width:47%">288</span><span style="color:var(--muted);font-size:0.8em;">长春→沈阳 还车</span></div>
+  <div class="intensity-bar"><span class="bar-label">10.7</span><span class="bar-fill bar-rest" style="width:8%">✈</span><span style="color:var(--green);font-size:0.8em;">沈阳→南京 1.5h到家</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 每日行程 -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-title">📅 每日详细行程</div>
+<div class="day-grid">
+
+  <!-- Day 1 -->
+  <div class="day-card">
+    <div class="day-num">01</div>
+    <div class="day-header">
+      <span class="day-date">9.24 周三</span>
+      <span class="day-title">南京 ✈ 烟台 → ⛴ 轮渡大连</span>
+      <span class="tag tag-flight">✈ SC7638 15:55→17:25</span>
+      <span class="tag tag-ferry">⛴ 渤海钻珠 22:40→05:20</span>
+    </div>
+    <div class="day-meta"><span class="rest">🚗 0 km</span></div>
+    <ul>
+      <li>下午：南京禄口 ✈ 烟台蓬莱，<strong>15:55 出发，17:25 到达</strong>（1.5h）</li>
+      <li>到达后：机场→烟台市区（约40min），晚餐吃蓬莱小面、鲅鱼水饺、烟台焖子</li>
+      <li>饭后：烟台山/滨海路散步消食（1h），看渤海夜景</li>
+      <li>晚上：烟台港乘<strong>渤海钻珠号</strong> → 大连辽渔大连湾航运中心，<strong>22:40 出发，次日 5:20 到达</strong>（约6.5h）</li>
+    </ul>
+    <div class="highlight">✈ 山东航空 SC7638（15:55-17:25），务必提前订票。⛴ 渤海钻珠号卧铺 ¥220，在大连再取车。睡一觉省一晚住宿。</div>
+  </div>
+
+  <!-- Day 2 -->
+  <div class="day-card">
+    <div class="day-num">02</div>
+    <div class="day-header">
+      <span class="day-date">9.25 周四</span>
+      <span class="day-title">大连取车 → G228 → 丹东</span>
+      <span class="tag tag-drive">🚗 驾车</span>
+    </div>
+    <div class="day-meta"><span class="drive">🚗 304 km / 3.6h</span></div>
+    <ul>
+      <li>🌅 清晨 5:20 到辽渔大连湾航运中心</li>
+      <li><strong>🌅 渤海日出！</strong>大连 9.25 日出约 5:42。4:30 起床去甲板，在渤海中央看海上日出，绝对值得</li>
+      <li>下船后吃个早餐，等租车网点开门取车（建议提前 APP 下单）</li>
+      <li>上午：星海广场（亚洲最大城市广场）+ 滨海路（最美海岸公路）</li>
+      <li>午餐：大连海鲜（海胆、鲍鱼、海参）</li>
+      <li>下午：G228 沿海公路 → 丹东</li>
+      <li>住丹东鸭绿江边</li>
+      <li>晚餐：丹东烧烤、黄蚬子、冷面</li>
+      <li>晚上：鸭绿江断桥夜景，对面就是朝鲜新义州</li>
+    </ul>
+  </div>
+
+  <!-- Day 3 -->
+  <div class="day-card">
+    <div class="day-num">03</div>
+    <div class="day-header">
+      <span class="day-date">9.26 周五</span>
+      <span class="day-title">丹东 → G331 → 绿江村</span>
+      <span class="tag tag-g331">G331 边境</span>
+    </div>
+    <div class="day-meta"><span class="drive">🚗 280 km / 5h</span></div>
+    <ul>
+      <li>上午：鸭绿江断桥 + 虎山长城（明长城东端起点）</li>
+      <li>午餐：朝鲜族冷面、打糕</li>
+      <li>下午：G331 边境公路沿鸭绿江北行 → 绿江村</li>
+      <li>途经：古楼子、河口桃花岛、水丰水库</li>
+      <li>住绿江村民宿</li>
+      <li>鸭绿江大拐弯日落，摄影天堂</li>
+    </ul>
+  </div>
+
+  <!-- Day 4 -->
+  <div class="day-card">
+    <div class="day-num">04</div>
+    <div class="day-header">
+      <span class="day-date">9.27 周六</span>
+      <span class="day-title">绿江村 → 集安 G331</span>
+      <span class="tag tag-g331">G331 边境</span>
+    </div>
+    <div class="day-meta"><span class="drive">🚗 270 km / 5h</span></div>
+    <ul>
+      <li>清晨：绿江村晨雾日出（绝美）</li>
+      <li>上午出发，G331 沿鸭绿江蜿蜒北行</li>
+      <li>途经：浑江大转弯（两国两省两江交汇，必停车拍照）</li>
+      <li>下午到集安</li>
+      <li>高句丽遗址（世界文化遗产，将军坟、好太王碑）</li>
+      <li>住集安</li>
+      <li>晚餐：集安火盆（朝鲜族铁板烧）、榆树皮冷面</li>
+    </ul>
+  </div>
+
+  <!-- Day 5 -->
+  <div class="day-card">
+    <div class="day-num">05</div>
+    <div class="day-header">
+      <span class="day-date">9.28 周日</span>
+      <span class="day-title">集安 → 临江 G331</span>
+      <span class="tag tag-g331">G331 边境</span>
+    </div>
+    <div class="day-meta"><span class="drive">🚗 250 km / 5h</span></div>
+    <ul>
+      <li>上午出发，G331 边境公路 → 临江</li>
+      <li>途经：云峰水库（鸭绿江峡谷最美段）、青石镇、苇沙河边境小镇</li>
+      <li>太极湾（鸭绿江大拐弯，航拍绝佳）</li>
+      <li>住临江</li>
+      <li>晚餐：林蛙（雪蛤）、山野菜</li>
+    </ul>
+    <div class="highlight">💡 今天路程最短，路上多停车拍照。集安→临江是 G331 边境风光精华段。</div>
+  </div>
+
+  <!-- Day 6 -->
+  <div class="day-card">
+    <div class="day-num">06</div>
+    <div class="day-header">
+      <span class="day-date">9.29 周一</span>
+      <span class="day-title">临江 → 长白县 G331</span>
+      <span class="tag tag-g331">G331 边境</span>
+    </div>
+    <div class="day-meta"><span class="drive">🚗 300 km / 6h</span></div>
+    <ul>
+      <li>上午：临江口岸（中朝边境大桥）</li>
+      <li>中午出发，G331 鸭绿江上游 → 长白县</li>
+      <li>途经：六道沟、八道沟、十二道沟、十五道沟</li>
+      <li>望天鹅景区（火山岩地貌，东北小九寨）</li>
+      <li>住长白县</li>
+      <li>对面就是朝鲜惠山市，中国唯一能"步行到朝鲜"的县城</li>
+    </ul>
+    <div class="highlight">⚠️ 今天是 G331 段最长的一天（300km 山路），但全程沿鸭绿江，风景无敌。早点出发，路上不赶。</div>
+  </div>
+
+  <!-- Day 7 -->
+  <div class="day-card">
+    <div class="day-num">07</div>
+    <div class="day-header">
+      <span class="day-date">9.30 周二</span>
+      <span class="day-title">长白县 → 二道白河（长白山）</span>
+      <span class="tag tag-g331">穿长白山</span>
+    </div>
+    <div class="day-meta"><span class="drive">🚗 250 km / 5h</span></div>
+    <ul>
+      <li>上午出发，离开鸭绿江边，穿越长白山脉</li>
+      <li>途经：马鹿沟、松江河</li>
+      <li>下午到二道白河镇（长白山北坡山下）</li>
+      <li>晚餐：东北铁锅炖（鸡/鱼/排骨任选）</li>
+      <li>晚上：泡火山温泉，为明天蓄力</li>
+    </ul>
+    <div class="highlight">💡 提前在「长白山」小程序预约10.1门票。住二道白河，明早第一批上山。国庆人多！</div>
+  </div>
+
+  <!-- Day 8 — REST -->
+  <div class="day-card rest-day">
+    <div class="day-num">08</div>
+    <div class="day-header">
+      <span class="day-date">10.1 周三 · 国庆</span>
+      <span class="day-title">🏔 长白山全天</span>
+      <span class="tag tag-rest">🎯 游玩</span>
+    </div>
+    <div class="day-meta"><span class="rest">🚗 0 km · 本次旅行高光！</span></div>
+    <ul>
+      <li>🌅 6:00 出发，抢第一批上山</li>
+      <li>天池（主峰）— 9月底秋高气爽，看到全貌概率大</li>
+      <li>长白瀑布（68米落差，火山岩壁）</li>
+      <li>聚龙泉（温泉煮鸡蛋，10元3个）</li>
+      <li>绿渊潭（碧绿深潭，拍照胜地）</li>
+      <li>地下森林（往返3km徒步）</li>
+      <li>午餐：景区解决</li>
+      <li>继续住二道白河，泡温泉解乏</li>
+    </ul>
+  </div>
+
+  <!-- Day 9 -->
+  <div class="day-card">
+    <div class="day-num">09</div>
+    <div class="day-header">
+      <span class="day-date">10.2 周四</span>
+      <span class="day-title">二道白河 → 延吉 G331</span>
+      <span class="tag tag-g331">G331 图们江</span>
+    </div>
+    <div class="day-meta"><span class="drive">🚗 280 km / 5h</span></div>
+    <ul>
+      <li>上午出发，G331 经和龙/仙峰 → 延吉</li>
+      <li>途经：图们江沿线，朝鲜就在江对岸</li>
+      <li>傍晚到延吉</li>
+      <li>住延吉市区（延边大学附近）</li>
+      <li>晚餐：全州拌饭、服务大楼冷面（带冰碴）、丰茂串城</li>
+      <li>晚上：延边大学对面「网红墙」霓虹灯拍照</li>
+    </ul>
+  </div>
+
+  <!-- Day 10 -->
+  <div class="day-card">
+    <div class="day-num">10</div>
+    <div class="day-header">
+      <span class="day-date">10.3 周五</span>
+      <span class="day-title">延吉 → 珲春防川 → 延吉</span>
+      <span class="tag tag-g331">边境</span>
+      <span class="tag tag-drive">当天往返</span>
+    </div>
+    <div class="day-meta"><span class="drive">🚗 230 km / 3h（往返）</span></div>
+    <ul>
+      <li>上午：延吉西市场（人参、松子、明太鱼干等特产）</li>
+      <li>午餐：水上市场早市（打糕、米肠、鱼饼、辣白菜）</li>
+      <li>中午出发 → 珲春防川（1.3h）</li>
+      <li>防川：「一眼望三国」（中国/朝鲜/俄罗斯），图们江入海口</li>
+      <li>傍晚返回延吉</li>
+      <li>晚餐：元奶奶包饭、酱汤</li>
+      <li>继续住延吉</li>
+    </ul>
+    <div class="highlight">🌏 防川是本次旅行独特亮点——站在中国领土，左边朝鲜右边俄罗斯，前方日本海。自驾版根本来不及去。</div>
+  </div>
+
+  <!-- Day 11 -->
+  <div class="day-card">
+    <div class="day-num">11</div>
+    <div class="day-header">
+      <span class="day-date">10.4 周六</span>
+      <span class="day-title">延吉 → 吉林市</span>
+      <span class="tag tag-drive">高速</span>
+    </div>
+    <div class="day-meta"><span class="drive">🚗 319 km / 3.7h</span></div>
+    <ul>
+      <li>上午：中国朝鲜族民俗园（穿韩服拍照，2h）</li>
+      <li>午餐后出发，G12 高速 → 吉林市</li>
+      <li>下午到，松花湖（秋季五花山，东北最美秋色）</li>
+      <li>住吉林市</li>
+      <li>晚餐：乌拉火锅（满族铜锅涮肉）</li>
+      <li>晚上：松花江畔散步</li>
+    </ul>
+  </div>
+
+  <!-- Day 12 -->
+  <div class="day-card">
+    <div class="day-num">12</div>
+    <div class="day-header">
+      <span class="day-date">10.5 周日</span>
+      <span class="day-title">吉林市 → 长春</span>
+      <span class="tag tag-drive">高速</span>
+    </div>
+    <div class="day-meta"><span class="drive">🚗 112 km / 1.3h</span></div>
+    <ul>
+      <li>上午出发，1小时到长春</li>
+      <li>伪满皇宫博物院（末代皇帝溥仪故居，2h，强烈推荐）</li>
+      <li>午餐：春发合饭庄（百年老店，锅包肉、雪衣豆沙）</li>
+      <li>下午：净月潭国家森林公园 或 长春电影制片厂</li>
+      <li>住长春</li>
+    </ul>
+  </div>
+
+  <!-- Day 13 -->
+  <div class="day-card">
+    <div class="day-num">13</div>
+    <div class="day-header">
+      <span class="day-date">10.6 周一</span>
+      <span class="day-title">长春 → 沈阳 还车</span>
+      <span class="tag tag-drive">高速</span>
+    </div>
+    <div class="day-meta"><span class="drive">🚗 288 km / 3.4h</span></div>
+    <ul>
+      <li>上午出发，G1 京哈高速 → 沈阳</li>
+      <li>中午到沈阳，前往租车网点还车</li>
+      <li>下午：沈阳故宫（清朝发源地）+ 大帅府</li>
+      <li>晚上：西塔街朝鲜族风情街，烤鳗鱼、酱蟹</li>
+      <li>中街步行街逛吃</li>
+      <li>住沈阳</li>
+    </ul>
+    <div class="highlight">⚠️ 还车时加满油、拍照留证（车身四周+里程表），避免还车纠纷。</div>
+  </div>
+
+  <!-- Day 14 -->
+  <div class="day-card rest-day">
+    <div class="day-num">14</div>
+    <div class="day-header">
+      <span class="day-date">10.7 周二</span>
+      <span class="day-title">✈ 沈阳 → 南京</span>
+      <span class="tag tag-flight">✈ 飞行</span>
+    </div>
+    <div class="day-meta"><span class="rest">🚗 0 km · 回家！</span></div>
+    <ul>
+      <li>上午：沈阳早市逛逛，买点东北特产</li>
+      <li>前往沈阳桃仙机场</li>
+      <li>✈ 沈阳 → 南京（约2h）</li>
+      <li>下午到家 🎉</li>
+      <li>庆功宴：南京盐水鸭！</li>
+    </ul>
+    <div class="highlight">🎉 不用像自驾版那样担心 10.7 国庆返程大堵车！飞机 2 小时稳稳到家。</div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 费用 -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-title">💰 费用明细</div>
+<div style="background:var(--card); border-radius:12px; padding:24px; border:1px solid var(--border);">
+
+  <h3 style="color:var(--gold);margin-bottom:16px;">🚗 租车费用（大连取 / 沈阳还，13天）</h3>
+  <table class="data-table">
+    <thead>
+      <tr><th>车型</th><th class="num">日租金</th><th class="num">13天</th><th class="num">异地还车</th><th class="num">基础保险</th><th class="num">小计</th></tr>
+    </thead>
+    <tbody>
+      <tr style="background:rgba(78,204,163,0.06);"><td>比亚迪宋PRO（SUV）🥇</td><td class="num">¥250</td><td class="num">¥3,250</td><td class="num">¥800</td><td class="num">¥650</td><td class="num" style="color:var(--green);font-weight:700;">~¥4,700</td></tr>
+    </tbody>
+  </table>
+
+  <div class="highlight" style="margin-bottom:20px;">🥇 比亚迪宋PRO：混动 SUV，省油 + 底盘高，G331 盘山路无压力。提前在神州/一嗨 APP 下单锁价。</div>
+
+  <h3 style="color:var(--gold);margin-bottom:16px;">💸 总费用（按 SUV 计算）</h3>
+  <div class="cost-grid">
+    <div class="cost-item"><span class="cost-lbl">✈ 南京→烟台机票</span><span class="cost-val">¥500</span></div>
+    <div class="cost-item"><span class="cost-lbl">⛴ 烟台→大连轮渡</span><span class="cost-val">¥220</span></div>
+    <div class="cost-item"><span class="cost-lbl">🚗 租车 13天（宋PRO）</span><span class="cost-val">¥4,700</span></div>
+    <div class="cost-item"><span class="cost-lbl">⛽ 油费 2,900km（混动省油）</span><span class="cost-val">¥1,500</span></div>
+    <div class="cost-item"><span class="cost-lbl">🛣 高速费（国庆免费）</span><span class="cost-val">¥0</span></div>
+    <div class="cost-item"><span class="cost-lbl">✈ 沈阳→南京机票</span><span class="cost-val">¥1,000</span></div>
+    <div class="cost-item"><span class="cost-lbl">🏨 住宿 13晚（¥250/晚）</span><span class="cost-val">¥3,250</span></div>
+    <div class="cost-item"><span class="cost-lbl">🍽 餐饮 14天（¥150/天）</span><span class="cost-val">¥2,100</span></div>
+  </div>
+  <div class="cost-total">
+    <span class="cost-lbl">💰 合计</span>
+    <span class="cost-val">~¥13,270</span>
+  </div>
+  <div style="color:var(--muted);font-size:0.8em;margin-top:8px;">* 东北小城市住宿实惠，¥250/晚足够住干净舒适的房间</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 三大方案对比 -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-title">⚖ 三方案对比</div>
+<div style="overflow-x:auto;">
+  <table class="data-table">
+    <thead>
+      <tr><th></th><th style="text-align:center">自驾东北<br><span style="font-weight:400;font-size:0.8em;color:var(--muted);">南京出发</span></th><th class="winner" style="text-align:center">飞+租车东北 🥇<br><span style="font-weight:400;font-size:0.8em;color:var(--green);">推荐</span></th><th style="text-align:center">东南沿海 G228<br><span style="font-weight:400;font-size:0.8em;color:var(--muted);">南京出发</span></th></tr>
+    </thead>
+    <tbody>
+      <tr><td>总驾车里程</td><td class="num">5,100 km</td><td class="num winner">2,900 km</td><td class="num">2,500 km</td></tr>
+      <tr><td>总驾驶时间</td><td class="num">69 h</td><td class="num winner">46 h</td><td class="num">30 h</td></tr>
+      <tr><td>日均驾驶</td><td class="num">393 km / 5.3h</td><td class="num winner">222 km / 3.5h</td><td class="num">200 km / 2.2h</td></tr>
+      <tr><td>最长单日</td><td class="num">661 km</td><td class="num winner">319 km</td><td class="num">350 km</td></tr>
+      <tr><td>整体强度</td><td class="num">中等偏紧</td><td class="num winner" style="color:var(--green);">轻松从容</td><td class="num">极度轻松</td></tr>
+      <tr><td>总费用</td><td class="num">~¥9,500</td><td class="num">~¥13,250</td><td class="num">~¥7,300</td></tr>
+      <tr><td>季节适配</td><td class="num">🍂 秋色绝美</td><td class="num winner">🍂 秋色绝美</td><td class="num">☀️ 仍偏热</td></tr>
+      <tr><td>国庆拥挤</td><td class="num">✅ 人少</td><td class="num winner">✅ 人少</td><td class="num">⚠️ 景区挤爆</td></tr>
+      <tr><td>独特度</td><td class="num">⭐⭐⭐⭐⭐</td><td class="num winner">⭐⭐⭐⭐⭐</td><td class="num">⭐⭐⭐</td></tr>
+      <tr><td>珲春防川</td><td class="num">❌ 来不及</td><td class="num winner" style="color:var(--green);">✅ 一眼望三国</td><td class="num">—</td></tr>
+      <tr><td>吉林/长春</td><td class="num">❌ 跳过</td><td class="num winner" style="color:var(--green);">✅ 各半天</td><td class="num">—</td></tr>
+      <tr><td>10.7 压力</td><td class="num">328km 开车</td><td class="num winner" style="color:var(--green);">✈ 飞机 1.5h</td><td class="num">0km 到家了</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 注意事项 -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-title">⚠ 注意事项</div>
+<div class="tips">
+  <ol>
+    <li><strong>机票早订</strong>：国庆前后南京⇌烟台/沈阳机票越早越便宜，提前1-2个月锁定</li>
+    <li><strong>租车早下单</strong>：神州租车/一嗨租车 APP，大连机场取、沈阳还。国庆 SUV 车源紧张，建议现在下单</li>
+    <li><strong>G331 边境公路</strong>：双向两车道、盘山、限速 40-70km/h。不是高速，实际行驶比导航预估慢</li>
+    <li><strong>边防检查</strong>：G331 沿线靠近边境需配合检查，随身携带身份证</li>
+    <li><strong>加油策略</strong>：G331 山区加油站间距大，满油出发，半箱即加。92号汽油即可</li>
+    <li><strong>长白山门票</strong>：提前在「长白山」小程序预约，国庆人多。带冲锋衣，山上温度低</li>
+    <li><strong>离线地图</strong>：边境路段可能没信号（尤其 G331 集安→临江→长白县段），提前下载高德/百度离线地图</li>
+    <li><strong>轮渡</strong>：烟台→大连乘渤海钻珠号（22:40→次日5:20），卧铺 ¥220。提前在「渤海轮渡」小程序订票。4:30 起床上甲板看渤海日出（5:42）</li>
+    <li><strong>秋色窗口</strong>：9月底10月初是东北秋色巅峰——长白山五花山 + 鸭绿江枫叶 + 松花湖彩林，一年仅两周</li>
+    <li><strong>还车</strong>：沈阳还车时加满油、拍照留证（车身四周+里程表），避免纠纷。预留1小时办手续</li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- Footer -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="footer">
+  <p>东北边境环线 · 飞+租车方案</p>
+  <p>时间：2026年9月24日 → 10月7日（13天14晚）</p>
+  <p>路线：南京 ✈ 烟台（SC7638 15:55→17:25）→ ⛴ 渤海钻珠（22:40→05:20，辽渔大连湾）→ G228 → 丹东 → G331 → 集安 → 临江 → 长白县 → 长白山 → 延吉 → 珲春防川 → 吉林 → 长春 → 沈阳 ✈ 南京</p>
+  <p style="margin-top:8px;">总驾车 ~2,900 km | 日均 222 km / 3.5h | 节奏：轻松从容 😎</p>
+</div>
+
+</div>
+</body>
+</html>
